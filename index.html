@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123e4a" />
+    <meta name="description" content="Consulta bilingüe sin conexión de las políticas internas de FairWind." />
+    <style>
+:root {
+  --ink: #15323b;
+  --muted: #5e7075;
+  --paper: #f7f7f2;
+  --surface: #ffffff;
+  --line: #d7dfdc;
+  --petrol: #123e4a;
+  --teal: #1f716f;
+  --amber: #d99b2b;
+  --soft-teal: #e6f0ee;
+  --shadow: 0 16px 40px rgba(16, 52, 61, 0.1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+button, a { font: inherit; }
+button { cursor: pointer; }
+
+.skip-link {
+  background: var(--petrol);
+  color: #fff;
+  left: 1rem;
+  padding: .6rem .85rem;
+  position: fixed;
+  top: -4rem;
+  z-index: 20;
+}
+.skip-link:focus { top: 1rem; }
+
+.site-header {
+  align-items: center;
+  background: var(--petrol);
+  color: #fff;
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr) minmax(150px, 1fr);
+  min-height: 132px;
+  padding: 1.5rem clamp(1.25rem, 5vw, 5.5rem);
+}
+.brand { align-items: center; display: flex; gap: .8rem; }
+.brand-mark {
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.7);
+  display: inline-flex;
+  font-size: .88rem;
+  font-weight: 800;
+  height: 2.7rem;
+  justify-content: center;
+  letter-spacing: .08em;
+  width: 2.7rem;
+}
+.brand-name { font-size: 1.08rem; font-weight: 700; letter-spacing: .03em; margin: 0; }
+.eyebrow { font-size: .72rem; font-weight: 800; letter-spacing: .12em; margin: 0 0 .25rem; text-transform: uppercase; }
+.site-header .eyebrow { color: #b9d1d3; }
+.header-copy h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.35rem, 2vw, 1.8rem); font-weight: 500; line-height: 1.2; margin: 0; }
+.header-copy { border-left: 1px solid rgba(255,255,255,.3); padding-left: 1.1rem; }
+.offline-status { align-items: center; display: flex; font-size: .84rem; gap: .5rem; justify-self: end; }
+.status-dot { background: #65c1ac; border-radius: 50%; height: .55rem; width: .55rem; }
+body.is-offline .status-dot { background: var(--amber); }
+
+main { margin: 0 auto; max-width: 1280px; padding: 0 clamp(1.25rem, 5vw, 5.5rem) 4.5rem; }
+.hero { align-items: end; border-bottom: 1px solid var(--line); display: flex; gap: 2rem; justify-content: space-between; padding: 3.8rem 0 2.5rem; }
+.hero > div { max-width: 650px; }
+.hero .eyebrow { color: var(--teal); }
+.hero h2 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3.7rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.06; margin: 0; }
+.hero > p { color: var(--muted); font-size: 1.02rem; margin: 0; max-width: 315px; }
+
+.controls { display: grid; gap: 2rem; grid-template-columns: minmax(175px, .7fr) minmax(400px, 1.8fr); padding: 2rem 0; }
+.control-label { color: var(--muted); font-size: .78rem; font-weight: 800; letter-spacing: .08em; margin: 0 0 .65rem; text-transform: uppercase; }
+.segmented-control { display: flex; flex-wrap: wrap; gap: .55rem; }
+.segmented-control button, .policy-tabs button {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  min-height: 42px;
+  padding: .6rem .95rem;
+  text-align: left;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.segmented-control button:hover, .policy-tabs button:hover { border-color: var(--teal); transform: translateY(-1px); }
+.segmented-control button[aria-pressed='true'] { background: var(--petrol); border-color: var(--petrol); color: #fff; }
+.policy-tabs { display: grid; gap: .55rem; grid-template-columns: repeat(3, 1fr); }
+.policy-tabs button { font-size: .9rem; font-weight: 700; }
+.policy-tabs button[aria-current='page'] { background: var(--soft-teal); border-color: var(--teal); color: var(--petrol); }
+.selection-announcement { color: var(--muted); font-size: .86rem; margin: -.45rem 0 1rem; min-height: 1.4rem; }
+
+.policy-document { background: var(--surface); box-shadow: var(--shadow); display: grid; grid-template-columns: 10px 1fr; }
+.document-rail { background: linear-gradient(to bottom, var(--teal), var(--petrol)); }
+.document-body { padding: clamp(1.5rem, 4vw, 4rem); }
+.document-heading { align-items: flex-start; border-bottom: 1px solid var(--line); display: flex; gap: 1.5rem; justify-content: space-between; padding-bottom: 1.6rem; }
+.document-heading .eyebrow { color: var(--teal); }
+.document-heading h2 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.9rem, 3vw, 3rem); font-weight: 500; letter-spacing: -.025em; line-height: 1.15; margin: 0; }
+.document-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.text-button { background: #fff; border: 1px solid var(--line); color: var(--petrol); font-size: .82rem; font-weight: 700; padding: .5rem .7rem; text-decoration: none; white-space: nowrap; }
+.text-button:hover, .text-button:focus-visible { background: var(--soft-teal); border-color: var(--teal); }
+.policy-content { max-width: 820px; padding: 2.2rem 0 1.1rem; }
+.policy-section { border-top: 1px solid transparent; margin-bottom: 2.1rem; }
+.policy-section:first-child { border-top: 0; }
+.policy-section h3 { color: var(--petrol); font-family: Georgia, 'Times New Roman', serif; font-size: 1.42rem; font-weight: 500; line-height: 1.25; margin: 0 0 .75rem; }
+.policy-section p { font-size: 1rem; margin: 0 0 .9rem; }
+.policy-section ul { margin: .25rem 0 0; padding-left: 1.3rem; }
+.policy-section li { margin: 0 0 .68rem; padding-left: .3rem; }
+.policy-section li::marker { color: var(--teal); }
+.document-footer { border-top: 1px solid var(--line); display: grid; gap: 2.3rem; grid-template-columns: 1fr minmax(230px, .8fr); margin-top: 1rem; padding-top: 1.8rem; }
+.signature { border-left: 3px solid var(--amber); padding-left: 1rem; }
+.signature strong { display: block; font-size: 1.05rem; }
+.signature span { color: var(--muted); font-size: .9rem; }
+.document-meta { margin: 0; }
+.document-meta div { border-bottom: 1px solid var(--line); display: grid; gap: .7rem; grid-template-columns: 90px 1fr; padding: .35rem 0; }
+.document-meta dt { color: var(--muted); font-size: .75rem; font-weight: 700; text-transform: uppercase; }
+.document-meta dd { font-size: .87rem; margin: 0; text-align: right; }
+.site-footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-size: .78rem; gap: 1.5rem; justify-content: space-between; padding: 1.7rem clamp(1.25rem, 5vw, 5.5rem); }
+.site-footer p { margin: 0; }
+
+button:focus-visible, a:focus-visible { outline: 3px solid #efbd58; outline-offset: 3px; }
+@media (max-width: 800px) {
+  .site-header { grid-template-columns: 1fr auto; }
+  .header-copy { border-left: 0; grid-column: 1 / -1; grid-row: 2; padding-left: 0; }
+  .offline-status { grid-column: 2; grid-row: 1; }
+  .hero { align-items: flex-start; flex-direction: column; padding-top: 2.8rem; }
+  .controls { grid-template-columns: 1fr; }
+  .policy-tabs { grid-template-columns: 1fr; }
+  .document-heading, .document-footer, .site-footer { align-items: flex-start; flex-direction: column; }
+  .document-footer { display: flex; }
+  .document-actions { margin-top: .3rem; }
+  .document-meta { width: 100%; }
+}
+@media (max-width: 480px) {
+  .site-header { padding-bottom: 1.25rem; padding-top: 1.25rem; }
+  .brand { gap: .55rem; }
+  .offline-status { font-size: .76rem; }
+  .hero h2 { font-size: 2.1rem; }
+  .policy-document { grid-template-columns: 5px 1fr; }
+  .document-body { padding: 1.35rem; }
+  .document-heading h2 { font-size: 1.8rem; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .skip-link, .site-header, .hero, .controls, .selection-announcement, .document-actions, .site-footer { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .policy-document { box-shadow: none; display: block; }
+  .document-rail { display: none; }
+  .document-body { padding: 0; }
+  .policy-section, .document-footer { break-inside: avoid; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+</style>
+    <title>Políticas FairWind</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#policy-document">Ir al contenido de la política</a>
+
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">FW</span>
+        <div>
+          <p class="eyebrow">Archivo interno</p>
+          <p class="brand-name">FairWind</p>
+        </div>
+      </div>
+      <div class="header-copy">
+        <p class="eyebrow" id="header-label">Políticas internas</p>
+        <h1 id="header-title">Consulta de políticas</h1>
+      </div>
+      <div class="offline-status" id="offline-status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="offline-status-text">Contenido local</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow" id="intro-label">Consulta documental</p>
+          <h2 id="intro-title">La información esencial, incluso sin conexión.</h2>
+        </div>
+        <p id="intro-copy">Elija un idioma y después una política para consultar su texto completo.</p>
+      </section>
+
+      <section class="controls" aria-label="Selección de política">
+        <div class="control-group">
+          <p class="control-label" id="language-label">Idioma de consulta</p>
+          <div class="segmented-control" id="language-selector" role="group" aria-labelledby="language-label"></div>
+        </div>
+        <div class="control-group">
+          <p class="control-label" id="policy-label">Política</p>
+          <nav class="policy-tabs" id="policy-selector" aria-labelledby="policy-label"></nav>
+        </div>
+      </section>
+
+      <p class="selection-announcement" id="selection-announcement" aria-live="polite"></p>
+
+      <article class="policy-document" id="policy-document" tabindex="-1" aria-labelledby="policy-title">
+        <div class="document-rail" aria-hidden="true"></div>
+        <div class="document-body">
+          <div class="document-heading">
+            <div>
+              <p class="eyebrow" id="document-kicker">Documento interno</p>
+              <h2 id="policy-title"></h2>
+            </div>
+            <div class="document-actions">
+              <button class="text-button" id="print-button" type="button">Imprimir</button>
+              <a class="text-button" id="source-link" href="/home/ubuntu/politicas/site/source/Politicas.pdf" target="_blank" rel="noopener">PDF original</a>
+            </div>
+          </div>
+
+          <div class="policy-content" id="policy-content"></div>
+
+          <footer class="document-footer">
+            <div class="signature" id="signature"></div>
+            <dl class="document-meta" id="document-meta"></dl>
+          </footer>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p id="footer-copy">FairWind · Consulta local de políticas internas</p>
+      <p id="offline-note">Esta aplicación no usa recursos externos y puede consultarse sin internet.</p>
+    </footer>
+
+    <script>
+(() => {
+  'use strict';
+
+  const ORIGINAL_PDFS = {
+    'es-hseq': { name: 'HSEQ-ES.pdf', data: 'HSEQ-ES.pdf' },
+    'pt-hseq': { name: 'HSEQ-PT.pdf', data: 'HSEQ-PT.pdf' },
+    'es-alcohol': { name: 'Alcohol-Drogas-ES.pdf', data: 'Alcohol-Drogas-ES.pdf' },
+    'pt-alcohol': { name: 'Abuso-Substancias-PT.pdf', data: 'Abuso-Substancias-PT.pdf' },
+    'es-driving': { name: 'Conduccion-ES.pdf', data: 'Conduccion-ES.pdf' },
+    'pt-driving': { name: 'Direcao-Segura-PT.pdf', data: 'Direcao-Segura-PT.pdf' }
+  };
+
+  const ui = {
+    es: {
+      languageName: 'Español',
+      headerLabel: 'Políticas internas',
+      headerTitle: 'Consulta de políticas',
+      introLabel: 'Consulta documental',
+      introTitle: 'La información esencial, incluso sin conexión.',
+      introCopy: 'Elija un idioma y después una política para consultar su texto completo.',
+      languageLabel: 'Idioma de consulta',
+      policyLabel: 'Política',
+      documentKicker: 'Documento interno',
+      print: 'Imprimir',
+      source: 'PDF original',
+      footer: 'FairWind · Consulta local de políticas internas',
+      offline: 'Esta aplicación no usa recursos externos y puede consultarse sin internet.',
+      localContent: 'Contenido local',
+      readyOffline: 'Disponible sin conexión',
+      offlineNow: 'Sin conexión · contenido disponible',
+      showing: (policy) => `Mostrando: ${policy}`,
+      meta: ['Documento', 'Revisión', 'Fecha']
+    },
+    pt: {
+      languageName: 'Português',
+      headerLabel: 'Políticas internas',
+      headerTitle: 'Consulta de políticas',
+      introLabel: 'Consulta documental',
+      introTitle: 'A informação essencial, mesmo sem conexão.',
+      introCopy: 'Escolha um idioma e depois uma política para consultar o texto completo.',
+      languageLabel: 'Idioma de consulta',
+      policyLabel: 'Política',
+      documentKicker: 'Documento interno',
+      print: 'Imprimir',
+      source: 'PDF original',
+      footer: 'FairWind · Consulta local de políticas internas',
+      offline: 'Esta aplicação não utiliza recursos externos e pode ser consultada sem internet.',
+      localContent: 'Conteúdo local',
+      readyOffline: 'Disponível sem conexão',
+      offlineNow: 'Sem conexão · conteúdo disponível',
+      showing: (policy) => `Exibindo: ${policy}`,
+      meta: ['Documento', 'Revisão', 'Data']
+    }
+  };
+
+  const policies = {
+    es: {
+      hseq: {
+        shortTitle: 'HSEQ',
+        title: 'Política HSEQ',
+        sections: [
+          {
+            title: 'Compromiso',
+            paragraphs: ['FairWind se compromete a proporcionar un entorno de trabajo libre de incidentes y a desarrollar proyectos y servicios de alta calidad que generen valor sostenible para nuestros clientes, socios, contratistas y las comunidades en las que operamos a nivel global.']
+          },
+          {
+            title: 'Alcance',
+            paragraphs: ['El alcance de esta política se aplica a todas las personas que representan a FairWind.']
+          },
+          {
+            title: 'Objetivos',
+            paragraphs: [
+              'FairWind ha establecido una estructura organizativa definida y un sistema de gestión integrado que proporciona un marco de procedimientos y procesos orientados al desempeño.',
+              'FairWind cumple sus compromisos en materia de Seguridad, Salud, Seguridad Patrimonial, Medio Ambiente y Calidad (HSEQ), a través de nuestros valores fundamentales:'
+            ],
+            bullets: [
+              'Proporcionando un entorno de trabajo seguro, saludable, con las medidas de protección adecuadas para todas las personas involucradas en nuestras operaciones o afectadas por ellas, fomentando que las personas intervengan con determinación para detener cualquier actividad insegura.',
+              'Comunicando información y formando a las personas en materia de salud mental, salud física y bienestar.',
+              'Comprometiéndonos a alcanzar altos estándares de calidad en todas nuestras operaciones para satisfacer y superar los requisitos de nuestros clientes.',
+              'Colaborando con nuestras partes interesadas para gestionar y prevenir los riesgos previsibles derivados de nuestras operaciones.',
+              'Demostrando integridad mediante la consulta y participación de empleados, contratistas, proveedores, clientes y socios.',
+              'Comprometiéndonos con nuestras responsabilidades sociales, mitigando nuestro impacto ambiental y actuando frente al cambio climático.',
+              'Revisando y desarrollando nuestro sistema de gestión integrado, promoviendo la mejora continua y las soluciones innovadoras.',
+              'Manteniendo los recursos necesarios y definiendo claramente las responsabilidades y obligaciones de los empleados.',
+              'Proporcionando la formación adecuada para asegurar la disponibilidad de personal formado, cualificado y competente.',
+              'Proporcionando instalaciones, maquinaria y equipos adecuados para su uso previsto, mantenidos periódicamente y con las certificaciones correspondientes.',
+              'Investigando incidentes, cuasi accidentes y no conformidades, identificando las causas raíz y las acciones preventivas, y compartiendo las lecciones aprendidas.',
+              'Manteniendo una capacidad de respuesta eficaz ante incidentes y situaciones de emergencia.',
+              'Asegurando que nuestros empleados, contratistas y proveedores cumplan nuestro Código de Conducta, así como las leyes, reglamentos y normas internacionales aplicables y las disposiciones legales vigentes en los países en los que operamos a nivel global.'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Chief Executive Officer' },
+        metadata: [
+          ['Document', 'PO-GL-HSEQ-001 - ES'],
+          ['Revision', '02'],
+          ['Date', '18th May 2026']
+        ]
+      },
+      alcohol: {
+        shortTitle: 'Alcohol y Drogas',
+        title: 'Política de Alcohol y Drogas',
+        sections: [
+          {
+            title: 'Compromiso',
+            paragraphs: [
+              'FairWind se compromete a proporcionar un entorno seguro, saludable y protegido.',
+              'FairWind tiene una política de tolerancia cero respecto a la presencia de alcohol, drogas u otras sustancias en el organismo que puedan comprometer la seguridad, la salud, el bienestar de las personas o la reputación de la empresa.',
+              'La aplicación de esta política se fundamenta en el conocimiento y la comprensión de los requisitos legales aplicables en los países en los que FairWind desarrolla sus actividades a nivel internacional.'
+            ]
+          },
+          {
+            title: 'Alcance',
+            paragraphs: ['El alcance de esta política aplica a todas las personas que representan a FairWind.']
+          },
+          {
+            title: 'Principios',
+            bullets: [
+              'Ninguna persona que se encuentre bajo la influencia del alcohol, drogas ilegales, medicamentos no prescritos u otras sustancias podrá acceder a ningún emplazamiento donde FairWind opere o desarrolle actividades de la empresa.',
+              'Se prohíbe poseer, vender, comprar o distribuir alcohol o drogas en las instalaciones de FairWind o en cualquier emplazamiento donde FairWind opere.',
+              'El uso declarado de medicamentos prescritos está permitido únicamente cuando no afecte a la capacidad de la persona para desempeñar sus funciones de manera segura. Esta circunstancia será determinada por un profesional médico cualificado.'
+            ]
+          },
+          {
+            title: 'Pruebas de Detección',
+            paragraphs: [
+              'FairWind se reserva el derecho de realizar pruebas y de cumplir los programas de control establecidos por clientes, cuando la legislación local lo permita y sin previo aviso, en las siguientes circunstancias:'
+            ],
+            bullets: [
+              'Controles aleatorios de FairWind.',
+              'Controles aleatorios requeridos por clientes, propietarios u operadores de parques eólicos.',
+              'Tras un incidente con lesiones personales, un evento de alta relevancia o una pérdida significative.',
+              'Cuando existan motivos razonables para sospechar que una persona se encuentra bajo la influencia del alcohol o las drogas.',
+              'Como parte de un programa de rehabilitación.'
+            ],
+            trailing: [
+              'Las pruebas serán realizadas por personal competente de acuerdo con estándares aprobados y aceptables para FairWind, en presencia de un testigo.',
+              'Todas las muestras seguirán protocolos estrictos para garantizar la cadena de custodia y evitar manipulaciones.',
+              'Los resultados se evaluarán teniendo en cuenta cualquier medicación declarada por la persona.',
+              'FairWind podrá solicitar pruebas adicionales cuando sea necesario. Estas podrán realizarse mediante muestras de orina, saliva, sangre o aire espirado, según las circunstancias. Las personas serán informadas previamente sobre el tipo de prueba que se llevará a cabo.'
+            ]
+          },
+          {
+            title: 'Asistencia y Apoyo al Empleado',
+            paragraphs: [
+              'FairWind reconoce que la dependencia del alcohol y las drogas es una cuestión de salud que requiere atención y apoyo médico profesional.',
+              'FairWind se compromete a apoyar a las personas que soliciten ayuda por problemas relacionados con el consumo o abuso de alcohol, drogas u otras sustancias antes de cualquier programa de pruebas, garantizando en todo momento la más estricta confidencialidad.'
+            ]
+          },
+          {
+            title: 'Comunicación y Medidas Disciplinarias',
+            paragraphs: [
+              'El cumplimiento de esta política es una condición para el empleo y la colaboración con FairWind.',
+              'Cuando se determine un incumplimiento de esta política y sea aplicable la legislación correspondiente de la empresa contratante o empleadora, podrán adoptarse medidas disciplinarias que pueden llegar, incluso, al despido o rescisión de la relación contractual.',
+              'Si existen motivos razonables para sospechar que una persona se encuentra bajo la influencia del alcohol, las drogas u otras sustancias que puedan causar daños a sí misma o a terceros, deberá actuarse de inmediato e informar a la línea jerárquica directa, al departamento HSEQ o a Recursos Humanos.'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Chief Executive Officer' },
+        metadata: [
+          ['Document', 'PO-GL-HSEQ-002'],
+          ['Revision', '02'],
+          ['Date', '18th May 2026']
+        ]
+      },
+      driving: {
+        shortTitle: 'Conducción',
+        title: 'Política de Conducción',
+        sections: [
+          {
+            title: 'Compromiso',
+            paragraphs: ['FairWind se compromete a proporcionar un entorno seguro, saludable y protegido, reduciendo los riesgos laborales para todas las personas involucradas o afectadas por nuestras operaciones asociadas a la conducción de vehículos de tráfico por carretera o a la operación de maquinaria móvil y equipos en obra.']
+          },
+          {
+            title: 'Alcance',
+            paragraphs: ['El alcance de esta política aplica a todas las personas que representan a FairWind.']
+          },
+          {
+            title: 'Principios',
+            paragraphs: ['FairWind ha establecido un Sistema Integrado de Gestión que proporciona un marco de procedimientos y procesos auditables para la gestión y el control de riesgos. FairWind se compromete a cumplir estos principios mediante:'],
+            bullets: [
+              'Cumplir con la normativa y los estándares aplicables en los países donde operamos.',
+              'Asegurar que todo el personal esté cualificado, formado y sea competente.',
+              'Mantener los recursos necesarios para la gestión de flotas.',
+              'Proporcionar vehículos, maquinaria y equipos seguros y adecuados para su propósito.',
+              'Implementar programas de mantenimiento con registros de las certificaciones reglamentarias aplicables.',
+              'Impulsar oportunidades de mejora continua mediante nuevas tecnologías.'
+            ]
+          },
+          {
+            title: 'Los conductores de vehículos y operadores de maquinaria móvil deberán:',
+            bullets: [
+              'Seguir nuestras “Life Saving Rules” para la Conducción y Operación de Maquinaria Móvil.',
+              'Asegurarse de estar en condiciones físicas adecuadas y descansados antes de conducir.',
+              'Cumplir la Política de Alcohol y Drogas.',
+              'Informar sobre cualquier medicación prescrita que pueda afectar a la capacidad de conducción.',
+              'Conducir vehículos u operar maquinaria únicamente cuando estén cualificados y autorizados para ello.',
+              'Realizar los check list previos al uso.',
+              'Inmovilizar y señalizar los vehículos o equipos con defectos y comunicar dichos defectos a la dirección.',
+              'Verificar que las cargas estén correctamente aseguradas.',
+              'Utilizar el cinturón de seguridad.',
+              'Asegurarse de que los pasajeros utilicen el cinturón de seguridad.',
+              'No utilizar nunca dispositivos portátiles de mano mientras se conduce.',
+              'Respetar los dispositivos limitadores de velocidad instalados en vehículos y maquinaria.',
+              'Cumplir los límites de velocidad y reducir la velocidad según las condiciones meteorológicas y de la vía.',
+              'Cumplir los requisitos de seguimiento de vehículos mediante sistema de posicionamiento global (GPS).',
+              'Cumplir la legislación local aplicable.',
+              'Informar inmediatamente a la dirección de cualquier incidente.',
+              'Notificar a las autoridades locales cualquier accidente o incidente de tráfico.'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Chief Executive Officer' },
+        metadata: [
+          ['Document', 'PO-GL-HSEQ-003'],
+          ['Revision', '02'],
+          ['Date', '18th May 2026']
+        ]
+      }
+    },
+    pt: {
+      hseq: {
+        shortTitle: 'HSEQ',
+        title: 'Política HSEQ',
+        sections: [
+          {
+            title: 'Compromisso',
+            paragraphs: ['A FairWind está comprometida em ter um ambiente de trabalho livre de incidentes, entregando projetos e serviços de alta qualidade para criar valor sustentável para nossos clientes, parceiros, empreiteiros e comunidades onde atuamos globalmente.']
+          },
+          {
+            title: 'Escopo',
+            paragraphs: ['O escopo desta política aplica-se a todas as pessoas que representam a FairWind.']
+          },
+          {
+            title: 'Objetivos',
+            paragraphs: [
+              'A FairWind estabeleceu uma estrutura organizacional definida e um sistema integrado de gestão que fornece uma estrutura de procedimentos e processos de desempenho.',
+              'A FairWind cumpre seus compromissos de Saúde, Segurança, Proteção, Meio Ambiente e Qualidade por meio de nossos valores centrais, através das seguintes ações:'
+            ],
+            bullets: [
+              'Proporcionando um ambiente seguro, saudável e protegido para todos os envolvidos ou afetados por nossas operações, capacitando as pessoas a terem coragem e intervir para impedir qualquer atividade insegura',
+              'Comunicando informações e educando as pessoas sobre saúde mental e física, e bem-estar',
+              'Comprometendo-nos a alcançar um alto padrão de qualidade em todas as nossas operações para atender e superar os requisitos dos clientes',
+              'Engajar nossos stakeholders para gerenciar e prevenir riscos previsíveis decorrentes de nossas operações',
+              'Demonstrando integridade por meio de consultas com funcionários, contratados, fornecedores, clientes e parceiros',
+              'Comprometer-nos com nossas responsabilidades sociais, mitigar o impacto em nosso planeta e responder às mudanças climáticas',
+              'Revisando e desenvolvendo nosso sistema integrado de gestão, promovendo a melhoria contínua e soluções inovadoras',
+              'Manter os recursos necessários com compromissos claros sobre as responsabilidades e responsabilidades dos funcionários',
+              'Oferecer treinamentos adequados para garantir a disponibilidade de uma força de trabalho treinada, qualificada e competente',
+              'Fornecer instalações e equipamentos adequados ao propósito, mantidos regularmente com certificação adequada',
+              'Investigando incidentes, quase acidentes e não conformidades, identificando causas profundas e ações preventivas, e compartilhando as lições aprendidas',
+              'Manter capacidades eficazes de resposta para incidentes e emergências',
+              'Garantir que nossos funcionários, contratados e fornecedores cumpram nosso Código de Conduta, bem como as leis, regulamentos e padrões internacionais aplicáveis dos países em que atuamos globalmente'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Diretor Executivo' },
+        metadata: [
+          ['Documento', 'PO-GL-HSEQ-001-PT'],
+          ['Revisão', '02'],
+          ['Data', '18 de maio de 2026']
+        ]
+      },
+      alcohol: {
+        shortTitle: 'Abuso de Substâncias',
+        title: 'Política de Abuso de Substâncias',
+        sections: [
+          {
+            title: 'Compromisso',
+            paragraphs: [
+              'A FairWind está comprometida em oferecer um ambiente seguro, saudável e protegido.',
+              'A FairWind tem uma política de tolerância zero para a presença de álcool ou drogas no corpo, que podem comprometer a segurança, a saúde e o bem-estar e nossa reputação.',
+              'Essa política é aplicada por meio do nosso entendimento e conhecimento das leis internacionais aplicáveis dos países onde atuamos globalmente.'
+            ]
+          },
+          {
+            title: 'Escopo',
+            paragraphs: ['O escopo desta política se aplica a todos que representam a FairWind.']
+          },
+          {
+            title: 'Princípios',
+            bullets: [
+              'Uma pessoa sob influência de álcool ou drogas não prescritas e ilegais ou outras substâncias está proibida de entrar em qualquer local onde a FairWind opere ou atue em qualquer negócio da empresa',
+              'É proibido que qualquer pessoa possua, venda, compre ou distribua álcool e drogas enquanto estiver em propriedades da FairWind ou em qualquer local onde a FairWind opere',
+              'O uso declarado de medicamentos prescritos é permitido, somente se eles não impactarem a capacidade da pessoa de desempenhar suas funções com segurança, isso será determinado por um profissional médico qualificado'
+            ]
+          },
+          {
+            title: 'Testes',
+            paragraphs: ['A FairWind reserva-se o direito de realizar testes e acompanhar programas de testes para clientes, quando a legislação local permitir, sem aviso prévio aos indivíduos nas seguintes circunstâncias:'],
+            bullets: [
+              'Testes aleatórios FairWind',
+              'Testes aleatórios entre Clientes e Proprietários ou Operadores de Parques Eólicos',
+              'Após incidente envolvendo lesões pessoais, um evento de grande repercussão ou um caso de custo de perda',
+              'Causa razoável para suspeita de que uma pessoa está sob influência de álcool ou drogas',
+              'Programa de reabilitação para indivíduos'
+            ],
+            trailing: [
+              'Os testes serão realizados por pessoal competente que seguirá padrões aprovados aceitáveis pela FairWind, na presença de uma testemunha.',
+              'Todas as amostras devem seguir protocolos rigorosos para garantir que não sejam adulteradas.',
+              'Os resultados serão revisados levando em consideração qualquer medicação declarada pelo indivíduo.',
+              'A FairWind pode solicitar que mais testes sejam realizados, se necessário. Os exames podem ser usados na forma de urina, saliva, sangue ou teste do etilômetro (teste do ar expirado), dependendo das circunstâncias. Os participantes serão informados sobre o tipo de teste a ser realizado.'
+            ]
+          },
+          {
+            title: 'Assistência e Suporte ao Empregado',
+            paragraphs: [
+              'A FairWind reconhece que a dependência de drogas e álcool é uma questão de saúde que requer cuidados e suporte médico profissional.',
+              'A FairWind está comprometida em apoiar aqueles que buscam e precisam de ajuda com uso de drogas, álcool e substâncias antes de qualquer programa de testes, e garantirá estrita confidencialidade.'
+            ]
+          },
+          {
+            title: 'Relatórios e Ações Disciplinares',
+            paragraphs: [
+              'O cumprimento desta política é condição para o emprego e o engajamento com a FairWind.',
+              'Quando alguém for considerado violando esta política e sujeito à legislação internacional da empresa empregadora ou contratada, podem ser tomadas medidas disciplinares até e incluindo demissão.',
+              'Se houver motivos razoáveis para suspeitar que uma pessoa está sob influência de álcool, drogas ou outras substâncias que possam causar danos a si mesma ou a outros, você deve agir imediatamente e notificar sua linha direta de relato, HSEQ ou Recursos Humanos.'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Diretor Executivo' },
+        metadata: [
+          ['Documento', 'PO-GL-HSEQ-002'],
+          ['Revisão', '02'],
+          ['Data', '18 de maio de 2026']
+        ]
+      },
+      driving: {
+        shortTitle: 'Direção Segura',
+        title: 'Política de Direção Segura',
+        sections: [
+          {
+            title: 'Compromisso',
+            paragraphs: ['A FairWind está comprometida em fornecer um ambiente seguro, saudável e protegido, reduzindo os riscos ocupacionais para todos os envolvidos ou afetados por nossas operações relacionados à condução de veículos rodoviários ou à operação de equipamentos e máquinas no local de trabalho.']
+          },
+          {
+            title: 'Escopo',
+            paragraphs: ['O escopo desta política se aplica a todos que representam a FairWind.']
+          },
+          {
+            title: 'Princípios',
+            paragraphs: ['A FairWind estabeleceu um sistema integrado de gestão que oferece uma estrutura de procedimentos e processos auditáveis para gerenciar e controlar riscos. A FairWind está comprometida em cumprir nossos princípios por meio de:'],
+            bullets: [
+              'Cumprir as regulamentações e padrões dos países onde atuamos',
+              'Garantir que todo o pessoal seja qualificado, treinado e competente',
+              'Manutenção dos recursos necessários de Gestão de Frotas',
+              'Fornecendo veículos, instalações e equipamentos seguros e adequados ao seu propósito',
+              'Implementação de programas de manutenção com registros de certificação estatutária',
+              'Buscando oportunidades de melhoria contínua por meio de novas tecnologias'
+            ]
+          },
+          {
+            title: 'Motoristas de veículos e operadores de máquinas e equipamentos devem:',
+            bullets: [
+              'Siga nossas Regras de Salvamento de Vidas para Direção e Operações de Plantas Móveis',
+              'Certifique-se de que estejam em forma e descansados antes de dirigir',
+              'Cumpra nossa Política de Abuso de Substâncias',
+              'Informe qualquer medicação prescrita que possa prejudicar a capacidade de dirigir',
+              'Dirija veículos ou opera a planta somente quando qualificado e autorizado a fazê-lo',
+              'Verificações completas antes do uso',
+              'Retirar de operação veículos e máquinas/equipamentos com quaisquer defeitos, reporte os defeitos à gerência',
+              'Verifique se as cargas estão devidamente fixadas',
+              'Use cinto de segurança',
+              'Garanta que os passageiros do veículo usem cinto de segurança',
+              'Nunca use um dispositivo portátil ao dirigir',
+              'Siga dispositivos de restrição de velocidade instalados em veículos e instalações',
+              'Respeitar os limites de velocidade e reduzir a velocidade de acordo com as condições climáticas e da via.',
+              'Cumprir os requisitos de rastreamento veicular do sistema de posicionamento global (GPS)',
+              'Cumprir a legislação local',
+              'Comunicar imediatamente à gestão qualquer incidente',
+              'Notificar as autoridades locais sobre qualquer acidente de trânsito'
+            ]
+          }
+        ],
+        signature: { name: 'Stewart Mitchell', role: 'Diretor Executivo' },
+        metadata: [
+          ['Documento', 'PO-GL-HSEQ-003'],
+          ['Revisão', '02'],
+          ['Data', '18 de maio de 2026']
+        ]
+      }
+    }
+  };
+
+  const languageSelector = document.querySelector('#language-selector');
+  const policySelector = document.querySelector('#policy-selector');
+  const content = document.querySelector('#policy-content');
+  const title = document.querySelector('#policy-title');
+  const signature = document.querySelector('#signature');
+  const metadata = document.querySelector('#document-meta');
+  const announcement = document.querySelector('#selection-announcement');
+  const statusText = document.querySelector('#offline-status-text');
+
+  const textNodes = {
+    headerLabel: document.querySelector('#header-label'),
+    headerTitle: document.querySelector('#header-title'),
+    introLabel: document.querySelector('#intro-label'),
+    introTitle: document.querySelector('#intro-title'),
+    introCopy: document.querySelector('#intro-copy'),
+    languageLabel: document.querySelector('#language-label'),
+    policyLabel: document.querySelector('#policy-label'),
+    documentKicker: document.querySelector('#document-kicker'),
+    print: document.querySelector('#print-button'),
+    source: document.querySelector('#source-link'),
+    footer: document.querySelector('#footer-copy'),
+    offline: document.querySelector('#offline-note')
+  };
+
+  const languageOrder = ['es', 'pt'];
+  const policyOrder = ['hseq', 'alcohol', 'driving'];
+  let selection = { language: 'es', policy: 'hseq' };
+
+  try {
+    const stored = JSON.parse(localStorage.getItem('fairwind-policy-selection'));
+    if (stored && policies[stored.language] && policies[stored.language][stored.policy]) {
+      selection = stored;
+    }
+  } catch (_) {
+    // La página sigue funcionando cuando el navegador no permite almacenamiento local.
+  }
+
+  function createButton(label, selected, action) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.addEventListener('click', action);
+    if (selected) button.setAttribute('aria-pressed', 'true');
+    return button;
+  }
+
+  function applyUiText(copy) {
+    textNodes.headerLabel.textContent = copy.headerLabel;
+    textNodes.headerTitle.textContent = copy.headerTitle;
+    textNodes.introLabel.textContent = copy.introLabel;
+    textNodes.introTitle.textContent = copy.introTitle;
+    textNodes.introCopy.textContent = copy.introCopy;
+    textNodes.languageLabel.textContent = copy.languageLabel;
+    textNodes.policyLabel.textContent = copy.policyLabel;
+    textNodes.documentKicker.textContent = copy.documentKicker;
+    textNodes.print.textContent = copy.print;
+    textNodes.source.textContent = copy.source;
+    textNodes.footer.textContent = copy.footer;
+    textNodes.offline.textContent = copy.offline;
+  }
+
+  function renderLanguages(copy) {
+    languageSelector.replaceChildren();
+    languageOrder.forEach((language) => {
+      const selected = language === selection.language;
+      const button = createButton(ui[language].languageName, selected, () => {
+        setSelection(language, selection.policy, true);
+      });
+      button.setAttribute('aria-pressed', String(selected));
+      languageSelector.append(button);
+    });
+  }
+
+  function renderPolicies() {
+    policySelector.replaceChildren();
+    policyOrder.forEach((policyKey) => {
+      const policy = policies[selection.language][policyKey];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = policy.shortTitle;
+      button.setAttribute('aria-current', policyKey === selection.policy ? 'page' : 'false');
+      button.addEventListener('click', () => setSelection(selection.language, policyKey, true));
+      policySelector.append(button);
+    });
+  }
+
+  function paragraph(value) {
+    const node = document.createElement('p');
+    node.textContent = value;
+    return node;
+  }
+
+  function renderDocument(copy) {
+    const policy = policies[selection.language][selection.policy];
+    document.documentElement.lang = selection.language;
+    document.title = `${policy.title} · FairWind`;
+    title.textContent = policy.title;
+    const originalPdf = ORIGINAL_PDFS[`${selection.language}-${selection.policy}`];
+    textNodes.source.href = originalPdf.data;
+    textNodes.source.download = originalPdf.name;
+    announcement.textContent = copy.showing(policy.title);
+
+    content.replaceChildren();
+    policy.sections.forEach((sectionData) => {
+      const section = document.createElement('section');
+      section.className = 'policy-section';
+      const heading = document.createElement('h3');
+      heading.textContent = sectionData.title;
+      section.append(heading);
+      (sectionData.paragraphs || []).forEach((value) => section.append(paragraph(value)));
+      if (sectionData.bullets && sectionData.bullets.length) {
+        const list = document.createElement('ul');
+        sectionData.bullets.forEach((value) => {
+          const item = document.createElement('li');
+          item.textContent = value;
+          list.append(item);
+        });
+        section.append(list);
+      }
+      (sectionData.trailing || []).forEach((value) => section.append(paragraph(value)));
+      content.append(section);
+    });
+
+    signature.replaceChildren();
+    const name = document.createElement('strong');
+    name.textContent = policy.signature.name;
+    const role = document.createElement('span');
+    role.textContent = policy.signature.role;
+    signature.append(name, role);
+
+    metadata.replaceChildren();
+    policy.metadata.forEach(([label, value]) => {
+      const wrapper = document.createElement('div');
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+      term.textContent = label;
+      description.textContent = value;
+      wrapper.append(term, description);
+      metadata.append(wrapper);
+    });
+  }
+
+  function setSelection(language, policy, moveFocus) {
+    selection = { language, policy };
+    try {
+      localStorage.setItem('fairwind-policy-selection', JSON.stringify(selection));
+    } catch (_) {
+      // El contenido permanece disponible aunque no se pueda guardar la preferencia.
+    }
+    const copy = ui[language];
+    applyUiText(copy);
+    renderLanguages(copy);
+    renderPolicies();
+    renderDocument(copy);
+    if (moveFocus) document.querySelector('#policy-document').focus({ preventScroll: true });
+  }
+
+  function updateConnectionStatus() {
+    const copy = ui[selection.language];
+    const isOffline = navigator.onLine === false;
+    document.body.classList.toggle('is-offline', isOffline);
+    statusText.textContent = isOffline ? copy.offlineNow : copy.localContent;
+  }
+
+  document.querySelector('#print-button').addEventListener('click', () => window.print());
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
+
+  setSelection(selection.language, selection.policy, false);
+  updateConnectionStatus();
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => { statusText.textContent = ui[selection.language].readyOffline; })
+        .catch(() => { /* El contenido local sigue siendo utilizable sin caché de servicio. */ });
+    });
+  }
+})();
+
+</script>
+  </body>
+</html>
